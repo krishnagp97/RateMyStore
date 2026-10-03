@@ -40,15 +40,10 @@ export const createStore = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getStores = async (
-  req: AuthRequest,
-  res: Response,
-) => {
+export const getStores = async (req: AuthRequest, res: Response) => {
   try {
     const search =
-      typeof req.query.search === "string"
-        ? req.query.search.trim()
-        : "";
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
 
     const stores = await prisma.store.findMany({
       ...(search
@@ -75,6 +70,7 @@ export const getStores = async (
         ratings: {
           select: {
             rating: true,
+            userId: true,
           },
         },
       },
@@ -85,14 +81,15 @@ export const getStores = async (
 
     const formattedStores = stores.map((store) => {
       const totalRatings = store.ratings.length;
+      const userRating =
+        store.ratings.find((item) => item.userId === req.user?.id)?.rating ??
+        null;
 
       const overallRating =
         totalRatings === 0
           ? 0
-          : store.ratings.reduce(
-              (sum, item) => sum + item.rating,
-              0,
-            ) / totalRatings;
+          : store.ratings.reduce((sum, item) => sum + item.rating, 0) /
+            totalRatings;
 
       return {
         id: store.id,
@@ -100,6 +97,7 @@ export const getStores = async (
         email: store.email,
         address: store.address,
         overallRating: Number(overallRating.toFixed(1)),
+        userRating,
       };
     });
 
