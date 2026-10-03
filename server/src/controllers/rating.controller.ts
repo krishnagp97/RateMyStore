@@ -79,11 +79,7 @@ export const createRating = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
-export const updateRating = async (
-  req: AuthRequest,
-  res: Response,
-) => {
+export const updateRating = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -92,9 +88,7 @@ export const updateRating = async (
     }
 
     const storeId =
-      typeof req.params.storeId === "string"
-        ? req.params.storeId
-        : undefined;
+      typeof req.params.storeId === "string" ? req.params.storeId : undefined;
 
     const { rating } = req.body;
 
@@ -152,10 +146,7 @@ export const updateRating = async (
   }
 };
 
-export const getOwnerStoreRatings = async (
-  req: AuthRequest,
-  res: Response,
-) => {
+export const getOwnerStoreRatings = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -164,9 +155,7 @@ export const getOwnerStoreRatings = async (
     }
 
     const storeId =
-      typeof req.params.storeId === "string"
-        ? req.params.storeId
-        : undefined;
+      typeof req.params.storeId === "string" ? req.params.storeId : undefined;
 
     if (!storeId) {
       return res.status(400).json({
@@ -219,11 +208,20 @@ export const getOwnerStoreRatings = async (
       },
     });
 
+    const totalRatings = ratings.length;
+
+    const averageRating =
+      totalRatings === 0
+        ? 0
+        : ratings.reduce((sum, item) => sum + item.rating, 0) / totalRatings;
+
     return res.status(200).json({
       store: {
         id: store.id,
         name: store.name,
       },
+      averageRating: Number(averageRating.toFixed(1)),
+      totalRatings,
       ratings,
     });
   } catch (error) {
