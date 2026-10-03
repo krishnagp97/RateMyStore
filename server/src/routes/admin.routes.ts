@@ -1,8 +1,9 @@
-
 import { Router } from "express";
 import {
   getAdminDashboard,
   getUsers,
+  createUser,
+  getAdminStores,
 } from "../controllers/admin.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 import { authorize } from "../middleware/authorize.js";
@@ -13,5 +14,7 @@ router.use(authenticate, authorize("ADMIN"));
 
 router.get("/dashboard", getAdminDashboard);
 router.get("/users", getUsers);
+router.post("/users", createUser);
+router.get("/stores", getAdminStores);
 
 export default router;
