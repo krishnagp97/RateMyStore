@@ -322,4 +322,92 @@ export const getAdminStores = async (
 };
 
 
+export const getUserDetails = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const userId =
+      typeof req.params.userId === "string"
+        ? req.params.userId
+        : undefined;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "User ID is required",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        address: true,
+        role: true,
+        createdAt: true,
+        stores: {
+          select: {
+            id: true,
+            name: true,
+            ratings: {
+              select: {
+                rating: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const stores = user.stores.map((store) => {
+      const totalRatings = store.ratings.length;
+
+      const averageRating =
+        totalRatings === 0
+          ? 0
+          : store.ratings.reduce(
+              (sum, item) => sum + item.rating,
+              0,
+            ) / totalRatings;
+
+      return {
+        id: store.id,
+        name: store.name,
+        totalRatings,
+        averageRating: Number(averageRating.toFixed(1)),
+      };
+    });
+
+    return res.status(200).json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        address: user.address,
+        role: user.role,
+        createdAt: user.createdAt,
+        ...(user.role === "OWNER" ? { stores } : {}),
+      },
+    });
+  } catch (error) {
+    console.error("Admin get user details error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch user details",
+    });
+  }
+};
+
+
+
 

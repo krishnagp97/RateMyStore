@@ -4,6 +4,7 @@ import {
   getUsers,
   createUser,
   getAdminStores,
+  getUserDetails,
 } from "../controllers/admin.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 import { authorize } from "../middleware/authorize.js";
@@ -16,5 +17,6 @@ router.get("/dashboard", getAdminDashboard);
 router.get("/users", getUsers);
 router.post("/users", createUser);
 router.get("/stores", getAdminStores);
+router.get("/users/:userId", getUserDetails);
 
 export default router;
