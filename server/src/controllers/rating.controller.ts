@@ -151,3 +151,86 @@ export const updateRating = async (
     });
   }
 };
+
+export const getOwnerStoreRatings = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const storeId =
+      typeof req.params.storeId === "string"
+        ? req.params.storeId
+        : undefined;
+
+    if (!storeId) {
+      return res.status(400).json({
+        message: "Store ID is required",
+      });
+    }
+
+    const store = await prisma.store.findUnique({
+      where: {
+        id: storeId,
+      },
+      select: {
+        id: true,
+        name: true,
+        ownerId: true,
+      },
+    });
+
+    if (!store) {
+      return res.status(404).json({
+        message: "Store not found",
+      });
+    }
+
+    if (store.ownerId !== req.user.id) {
+      return res.status(403).json({
+        message: "You do not own this store",
+      });
+    }
+
+    const ratings = await prisma.rating.findMany({
+      where: {
+        storeId,
+      },
+      select: {
+        id: true,
+        rating: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      store: {
+        id: store.id,
+        name: store.name,
+      },
+      ratings,
+    });
+  } catch (error) {
+    console.error("Get owner store ratings error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch store ratings",
+    });
+  }
+};
