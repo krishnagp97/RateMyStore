@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Store,
   Users,
-  Star,
+  KeyRound,
   LogOut,
   Menu,
   X,
@@ -28,10 +27,11 @@ const navigation = {
   ],
   USER: [
     { label: "Browse Stores", href: "/stores", icon: Store },
+    { label: "Change Password", href: "/change-password", icon: KeyRound },
   ],
   OWNER: [
     { label: "Dashboard", href: "/owner", icon: LayoutDashboard },
-    { label: "Ratings", href: "/owner/ratings", icon: Star },
+    { label: "Change Password", href: "/change-password", icon: KeyRound },
   ],
 };
 

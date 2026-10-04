@@ -13,7 +13,7 @@ import AddUser from "./pages/admin/AddUser";
 import AdminStores from "./pages/admin/AdminStores";
 import AdminAddStore from "./pages/admin/AddStore";
 import AdminUserDetails from "./pages/admin/AdminUserDetails";
-
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   return (
@@ -24,6 +24,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
+          <Route path="/change-password" element={<ChangePassword />} />
 
           <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
             <Route path="/admin" element={<AdminDashboard />} />
@@ -40,8 +41,7 @@ function App() {
 
           <Route element={<RoleRoute allowedRoles={["OWNER"]} />}>
             <Route path="/owner" element={<OwnerDashboard />} />
-            <Route path="/owner/ratings" element={<OwnerDashboard />} />
-             <Route path="/owner/add-store" element={<OwnerAddStore />} />
+            <Route path="/owner/add-store" element={<OwnerAddStore />} />
           </Route>
         </Route>
 

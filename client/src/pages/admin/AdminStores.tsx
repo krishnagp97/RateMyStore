@@ -78,6 +78,15 @@ function AdminStores() {
       setSortOrder("asc");
     }
   };
+
+  const getSortIcon = (field: "name" | "email" | "address" | "rating") => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="size-3.5" />;
+    }
+
+    return <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>;
+  };
+
   return (
     <DashboardLayout
       title="Stores"
@@ -168,7 +177,7 @@ function AdminStores() {
                           className="inline-flex items-center gap-1 hover:text-foreground"
                         >
                           Store Name
-                          <ArrowUpDown className="size-3.5" />
+                          {getSortIcon("name")}
                         </button>
                       </th>
 
@@ -179,7 +188,7 @@ function AdminStores() {
                           className="inline-flex items-center gap-1 hover:text-foreground"
                         >
                           Email
-                          <ArrowUpDown className="size-3.5" />
+                          {getSortIcon("email")}
                         </button>
                       </th>
 
@@ -190,7 +199,7 @@ function AdminStores() {
                           className="inline-flex items-center gap-1 hover:text-foreground"
                         >
                           Address
-                          <ArrowUpDown className="size-3.5" />
+                          {getSortIcon("address")}
                         </button>
                       </th>
 
@@ -201,7 +210,7 @@ function AdminStores() {
                           className="inline-flex items-center gap-1 hover:text-foreground"
                         >
                           Rating
-                          <ArrowUpDown className="size-3.5" />
+                          {getSortIcon("rating")}
                         </button>
                       </th>
                     </tr>

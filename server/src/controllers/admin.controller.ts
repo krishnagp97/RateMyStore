@@ -321,6 +321,103 @@ export const getAdminStores = async (
   }
 };
 
+export const createAdminStore = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, email, address, ownerId } = req.body;
+
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof address !== "string" ||
+      typeof ownerId !== "string"
+    ) {
+      return res.status(400).json({
+        message: "Name, email, address, and owner ID are required",
+      });
+    }
+
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedAddress = address.trim();
+    const normalizedOwnerId = ownerId.trim();
+
+    if (normalizedName.length < 20 || normalizedName.length > 60) {
+      return res.status(400).json({
+        message: "Name must be between 20 and 60 characters",
+      });
+    }
+
+    if (!normalizedAddress || normalizedAddress.length > 400) {
+      return res.status(400).json({
+        message: "Address must be between 1 and 400 characters",
+      });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(normalizedEmail)) {
+      return res.status(400).json({
+        message: "Please provide a valid email address",
+      });
+    }
+
+    const owner = await prisma.user.findUnique({
+      where: { id: normalizedOwnerId },
+      select: { id: true, role: true },
+    });
+
+    if (!owner) {
+      return res.status(404).json({
+        message: "Owner not found",
+      });
+    }
+
+    if (owner.role !== "OWNER") {
+      return res.status(400).json({
+        message: "Selected user is not a store owner",
+      });
+    }
+
+    const existingStore = await prisma.store.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingStore) {
+      return res.status(409).json({
+        message: "A store with this email already exists",
+      });
+    }
+
+    const store = await prisma.store.create({
+      data: {
+        name: normalizedName,
+        email: normalizedEmail,
+        address: normalizedAddress,
+        ownerId: normalizedOwnerId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        address: true,
+        ownerId: true,
+        createdAt: true,
+      },
+    });
+
+    return res.status(201).json({
+      message: "Store created successfully",
+      store,
+    });
+  } catch (error) {
+    console.error("Admin create store error:", error);
+
+    return res.status(500).json({
+      message: "Failed to create store",
+    });
+  }
+};
+
 
 export const getUserDetails = async (
   req: AuthRequest,

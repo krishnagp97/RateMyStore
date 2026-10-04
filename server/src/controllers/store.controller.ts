@@ -45,27 +45,30 @@ export const getStores = async (req: AuthRequest, res: Response) => {
     const search =
       typeof req.query.search === "string" ? req.query.search.trim() : "";
 
-    const stores = await prisma.store.findMany({
+    const where = {
+      ...(req.user?.role === "OWNER" ? { ownerId: req.user.id } : {}),
       ...(search
         ? {
-            where: {
-              OR: [
-                {
-                  name: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: "insensitive" as const,
                 },
-                {
-                  address: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
+              },
+              {
+                address: {
+                  contains: search,
+                  mode: "insensitive" as const,
                 },
-              ],
-            },
+              },
+            ],
           }
         : {}),
+    };
+
+    const stores = await prisma.store.findMany({
+      where,
       include: {
         ratings: {
           select: {

@@ -9,15 +9,15 @@ import { authorize } from "../middleware/authorize.js";
 
 const router = Router();
 
-router.post("/:storeId", authenticate, authorize("USER"), createRating);
-
-router.put("/:storeId", authenticate, authorize("USER"), updateRating);
-
 router.get(
   "/:storeId/ratings",
   authenticate,
   authorize("OWNER"),
   getOwnerStoreRatings,
 );
+
+router.post("/:storeId", authenticate, authorize("USER"), createRating);
+
+router.put("/:storeId", authenticate, authorize("USER"), updateRating);
 
 export default router;

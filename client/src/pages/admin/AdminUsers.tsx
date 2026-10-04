@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, LoaderCircle, AlertCircle, UserPlus } from "lucide-react";
+import {
+  Search,
+  LoaderCircle,
+  AlertCircle,
+  UserPlus,
+  ArrowUpDown,
+} from "lucide-react";
 
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,9 +18,16 @@ import type { AdminUser } from "@/services/adminService";
 function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "email" | "address" | "role">(
+    "name",
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,9 +38,10 @@ function AdminUsers() {
 
         const data = await getAdminUsers({
           name: name.trim() || undefined,
+          email: email.trim() || undefined,
+          address: address.trim() || undefined,
           role: role || undefined,
         });
-
         setUsers(data.users);
       } catch {
         setError("Unable to load users.");
@@ -39,7 +53,34 @@ function AdminUsers() {
     const timeout = setTimeout(loadUsers, 250);
 
     return () => clearTimeout(timeout);
-  }, [name, role]);
+  }, [name, email, address, role]);
+
+  const sortedUsers = [...users].sort((a, b) => {
+    const valueA = a[sortBy].toLowerCase();
+    const valueB = b[sortBy].toLowerCase();
+
+    if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
+    if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
+
+    return 0;
+  });
+
+  const handleSort = (field: "name" | "email" | "address" | "role") => {
+    if (sortBy === field) {
+      setSortOrder((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
+
+  const getSortIcon = (field: "name" | "email" | "address" | "role") => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="size-3.5" />;
+    }
+
+    return <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>;
+  };
 
   return (
     <DashboardLayout
@@ -67,8 +108,8 @@ function AdminUsers() {
 
         <Card>
           <CardContent className="p-4">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="relative flex-1">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
                 <Input
@@ -78,6 +119,18 @@ function AdminUsers() {
                   className="pl-9"
                 />
               </div>
+
+              <Input
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="Search by email..."
+              />
+
+              <Input
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                placeholder="Search by address..."
+              />
 
               <select
                 value={role}
@@ -122,12 +175,49 @@ function AdminUsers() {
                 <table className="w-full text-sm">
                   <thead className="border-b bg-muted/40">
                     <tr>
-                      <th className="px-4 py-3 text-left font-medium">Name</th>
-                      <th className="px-4 py-3 text-left font-medium">Email</th>
                       <th className="px-4 py-3 text-left font-medium">
-                        Address
+                        <button
+                          type="button"
+                          onClick={() => handleSort("name")}
+                          className="inline-flex items-center gap-1 hover:text-foreground"
+                        >
+                          Name
+                          {getSortIcon("name")}
+                        </button>
                       </th>
-                      <th className="px-4 py-3 text-left font-medium">Role</th>
+
+                      <th className="px-4 py-3 text-left font-medium">
+                        <button
+                          type="button"
+                          onClick={() => handleSort("email")}
+                          className="inline-flex items-center gap-1 hover:text-foreground"
+                        >
+                          Email
+                          {getSortIcon("email")}
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left font-medium">
+                        <button
+                          type="button"
+                          onClick={() => handleSort("address")}
+                          className="inline-flex items-center gap-1 hover:text-foreground"
+                        >
+                          Address
+                          {getSortIcon("address")}
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left font-medium">
+                        <button
+                          type="button"
+                          onClick={() => handleSort("role")}
+                          className="inline-flex items-center gap-1 hover:text-foreground"
+                        >
+                          Role
+                          {getSortIcon("role")}
+                        </button>
+                      </th>
                       <th className="px-4 py-3 text-right font-medium">
                         Actions
                       </th>
@@ -135,7 +225,7 @@ function AdminUsers() {
                   </thead>
 
                   <tbody className="divide-y">
-                    {users.map((user) => (
+                    {sortedUsers.map((user) => (
                       <tr key={user.id} className="hover:bg-muted/30">
                         <td className="px-4 py-3 font-medium">{user.name}</td>
 
@@ -143,17 +233,14 @@ function AdminUsers() {
                           {user.email}
                         </td>
 
-                        <td className="max-w-xs px-4 py-3 text-muted-foreground">
-                          <span className="block truncate">
+                        <td className="px-4 py-3 text-muted-foreground">
+                          <span className="block max-w-xs truncate">
                             {user.address || "—"}
                           </span>
                         </td>
 
-                        <td className="px-4 py-3">
-                          <span className="rounded-md border px-2 py-1 text-xs font-medium">
-                            {user.role}
-                          </span>
-                        </td>
+                        <td className="px-4 py-3 font-medium">{user.role}</td>
+
                         <td className="px-4 py-3 text-right">
                           <Button
                             variant="outline"
