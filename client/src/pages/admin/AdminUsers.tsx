@@ -128,6 +128,9 @@ function AdminUsers() {
                         Address
                       </th>
                       <th className="px-4 py-3 text-left font-medium">Role</th>
+                      <th className="px-4 py-3 text-right font-medium">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
 
@@ -150,6 +153,15 @@ function AdminUsers() {
                           <span className="rounded-md border px-2 py-1 text-xs font-medium">
                             {user.role}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/admin/users/${user.id}`)}
+                          >
+                            View
+                          </Button>
                         </td>
                       </tr>
                     ))}

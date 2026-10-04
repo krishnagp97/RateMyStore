@@ -7,9 +7,13 @@ import RoleRoute from "./components/RoleRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserStores from "./pages/user/UserStores";
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
-import AddStore from "./pages/owner/AddStore";
+import OwnerAddStore from "./pages/owner/AddStore";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AddUser from "./pages/admin/AddUser";
+import AdminStores from "./pages/admin/AdminStores";
+import AdminAddStore from "./pages/admin/AddStore";
+import AdminUserDetails from "./pages/admin/AdminUserDetails";
+
 
 function App() {
   return (
@@ -25,6 +29,9 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/users/add" element={<AddUser />} />
+            <Route path="/admin/stores" element={<AdminStores />} />
+            <Route path="/admin/stores/add" element={<AdminAddStore />} />
+            <Route path="/admin/users/:userId" element={<AdminUserDetails />} />
           </Route>
 
           <Route element={<RoleRoute allowedRoles={["USER"]} />}>
@@ -34,7 +41,7 @@ function App() {
           <Route element={<RoleRoute allowedRoles={["OWNER"]} />}>
             <Route path="/owner" element={<OwnerDashboard />} />
             <Route path="/owner/ratings" element={<OwnerDashboard />} />
-            <Route path="/owner/add-store" element={<AddStore />} />
+             <Route path="/owner/add-store" element={<OwnerAddStore />} />
           </Route>
         </Route>
 
