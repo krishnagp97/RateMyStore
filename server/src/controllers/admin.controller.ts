@@ -450,6 +450,8 @@ export const getUserDetails = async (
           select: {
             id: true,
             name: true,
+            email: true,
+            address: true,
             ratings: {
               select: {
                 rating: true,
@@ -480,6 +482,8 @@ export const getUserDetails = async (
       return {
         id: store.id,
         name: store.name,
+        email: store.email,
+        address: store.address,
         totalRatings,
         averageRating: Number(averageRating.toFixed(1)),
       };
@@ -493,8 +497,8 @@ export const getUserDetails = async (
         address: user.address,
         role: user.role,
         createdAt: user.createdAt,
-        ...(user.role === "OWNER" ? { stores } : {}),
       },
+      ...(user.role === "OWNER" ? { stores } : {}),
     });
   } catch (error) {
     console.error("Admin get user details error:", error);
@@ -504,7 +508,3 @@ export const getUserDetails = async (
     });
   }
 };
-
-
-
-
