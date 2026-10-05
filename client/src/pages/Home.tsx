@@ -1,28 +1,26 @@
-import { useNavigate } from "react-router-dom";
-import { logout } from "../utils/auth";
+import { Navigate } from "react-router-dom";
 
 function Home() {
-  const navigate = useNavigate();
-
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return (
-    <div>
-      <h1>RateMyStore</h1>
+  if (user.role === "ADMIN") {
+    return <Navigate to="/admin" replace />;
+  }
 
-      <p>Welcome, {user?.name}</p>
-      <p>Role: {user?.role}</p>
+  if (user.role === "USER") {
+    return <Navigate to="/stores" replace />;
+  }
 
-      <button onClick={handleLogout}>
-        Logout
-      </button>
-    </div>
-  );
+  if (user.role === "OWNER") {
+    return <Navigate to="/owner" replace />;
+  }
+
+  return <Navigate to="/login" replace />;
 }
 
 export default Home;
+
