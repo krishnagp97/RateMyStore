@@ -1,46 +1,70 @@
 # RateMyStore
 
-A full-stack store rating platform where users can discover stores, submit ratings, and manage their accounts, while store owners can manage their stores and administrators can manage users and stores.
+A full-stack store rating platform with role-based access for **System Administrators, Normal Users, and Store Owners**.
+
+Built as a full-stack internship coding challenge using React, Express.js, PostgreSQL, Prisma, and JWT authentication.
+
+## Live Application
+
+**Frontend:**
+https://rate-my-store-three.vercel.app
+
+**Backend API:**
+https://ratemystore-api-34v2.onrender.com
+
+---
+
+## Demo Accounts
+
+Demo credentials are available in:
+
+[`DEMO_ACCOUNTS.md`](./DEMO_ACCOUNTS.md)
+
+These accounts are intended only for demonstration and testing.
+
+---
 
 ## Features
 
-### 👤 Normal User
+### System Administrator
 
-* Sign up and login
-* Browse and search stores
-* Search stores by name and address
-* View store ratings
+* View and manage users
+* Create users with different roles
+* View user details
+* Create and manage stores
+* Assign stores to store owners
+* View store rating information
+* Manage store-owner relationships
+
+### Normal User
+
+* Sign up and log in
+* Browse available stores
+* Search stores by name or address
+* View store details and ratings
 * Submit ratings
 * Update password
 
-### 🏪 Store Owner
+### Store Owner
 
-* Login securely
+* Log in securely
 * View owned stores
 * Add stores
-* View store ratings
+* View store rating information
 * Update password
 
-### 🛡️ Administrator
+---
 
-* Admin dashboard
-* View users
-* Search and filter users
-* Create users
-* View user details
-* View owned stores
-* View all stores
-* Search and filter stores
-* Add stores and assign them to owners
+## Authentication & Authorization
 
-### 🔐 Authentication & Authorization
+The application uses **JWT-based authentication** with role-based authorization.
 
-* JWT-based authentication
-* Role-based access control
-* Protected routes
-* Separate permissions for Admin, User, and Store Owner
-* Password hashing
-* Server-side validation
+* Passwords are hashed using `bcryptjs`
+* JWT tokens are used for authenticated requests
+* Protected API routes require authentication
+* Role-based middleware restricts access to authorized users
+* Users can only access functionality allowed by their role
+* Ownership checks prevent unauthorized access to store resources
 
 ---
 
@@ -48,8 +72,9 @@ A full-stack store rating platform where users can discover stores, submit ratin
 
 ### Frontend
 
-* React.js
+* React
 * TypeScript
+* Vite
 * React Router
 * Tailwind CSS
 * shadcn/ui
@@ -62,9 +87,46 @@ A full-stack store rating platform where users can discover stores, submit ratin
 * Express.js
 * TypeScript
 * Prisma ORM
-* PostgreSQL
 * JWT
-* bcrypt
+* bcryptjs
+* Zod
+* CORS
+
+### Database
+
+* PostgreSQL
+
+### Deployment
+
+* **Frontend:** Vercel
+* **Backend:** Render
+* **Database:** Neon
+
+---
+
+## Architecture
+
+```text
+┌──────────────────────────────┐
+│          Vercel              │
+│      React + Vite Frontend   │
+└──────────────┬───────────────┘
+               │
+               │ HTTPS REST API
+               ▼
+┌──────────────────────────────┐
+│          Render              │
+│     Express.js Backend       │
+│       Prisma ORM             │
+└──────────────┬───────────────┘
+               │
+               │ PostgreSQL
+               ▼
+┌──────────────────────────────┐
+│            Neon              │
+│       PostgreSQL Database    │
+└──────────────────────────────┘
+```
 
 ---
 
@@ -77,10 +139,17 @@ RateMyStore/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
+│   │   │   ├── admin/
+│   │   │   ├── owner/
+│   │   │   └── user/
 │   │   ├── services/
-│   │   ├── utils/
-│   │   └── ...
-│   └── package.json
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   ├── public/
+│   ├── vercel.json
+│   ├── package.json
+│   └── ...
 │
 ├── server/
 │   ├── src/
@@ -88,10 +157,11 @@ RateMyStore/
 │   │   ├── middleware/
 │   │   ├── routes/
 │   │   ├── lib/
-│   │   └── ...
+│   │   └── server.ts
+│   │
 │   ├── prisma/
-│   │   └── schema.prisma
-│   └── package.json
+│   ├── package.json
+│   └── ...
 │
 ├── DEMO_ACCOUNTS.md
 └── README.md
@@ -99,189 +169,137 @@ RateMyStore/
 
 ---
 
-## Getting Started
+## Running Locally
 
-### 1. Clone the repository
+### Prerequisites
+
+Make sure you have:
+
+* Node.js
+* npm
+* PostgreSQL database or Neon account
+* Git
+
+### Clone the repository
 
 ```bash
 git clone https://github.com/krishnagp97/RateMyStore.git
 cd RateMyStore
 ```
 
-### 2. Install frontend dependencies
+---
 
-```bash
-cd client
-npm install
-```
-
-### 3. Install backend dependencies
-
-Open another terminal:
+## Backend Setup
 
 ```bash
 cd server
 npm install
 ```
 
----
-
-## Environment Variables
-
-### Server
-
-Create:
-
-```text
-server/.env
-```
-
-Add:
+Create a `.env` file:
 
 ```env
-DATABASE_URL="your_postgresql_connection_string"
-JWT_SECRET="your_jwt_secret"
+DATABASE_URL="your-neon-connection-string"
+JWT_SECRET="your-secret"
+JWT_EXPIRES_IN="1d"
 PORT=5000
 CLIENT_URL="http://localhost:5173"
 ```
 
-### Client
-
-Create:
-
-```text
-client/.env
-```
-
-Add:
-
-```env
-VITE_API_URL="http://localhost:5000/api"
-```
-
-Do not commit `.env` files or real credentials to GitHub.
-
----
-
-## Database Setup
-
-From the `server` directory:
+Generate Prisma Client:
 
 ```bash
 npx prisma generate
 ```
 
-Run migrations:
-
-```bash
-npx prisma migrate dev
-```
-
-Start Prisma Studio if you want to inspect the database:
-
-```bash
-npx prisma studio
-```
-
----
-
-## Running the Application
-
-### Start the backend
-
-From:
-
-```text
-server/
-```
-
-run:
+Run the backend:
 
 ```bash
 npm run dev
 ```
 
-The backend will run on:
+The backend will run at:
 
 ```text
 http://localhost:5000
 ```
 
-### Start the frontend
+---
 
-From:
+## Frontend Setup
 
-```text
-client/
+Open another terminal:
+
+```bash
+cd client
+npm install
 ```
 
-run:
+Create a `.env` file:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Run the frontend:
 
 ```bash
 npm run dev
 ```
 
-The frontend will normally run on:
+The frontend will normally run at:
 
 ```text
 http://localhost:5173
 ```
 
-Open the frontend URL in your browser.
+---
+
+## Environment Variables
+
+### Backend
+
+The backend requires:
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+JWT_EXPIRES_IN=1d
+PORT=5000
+CLIENT_URL=
+```
+
+### Frontend
+
+The frontend requires:
+
+```env
+VITE_API_URL=
+```
+
+`VITE_API_URL` contains the public API endpoint and is intentionally exposed to the browser.
+
+**Never commit `.env` files or expose secrets such as `DATABASE_URL` or `JWT_SECRET` in the frontend.**
 
 ---
 
-## Demo Accounts
+## Database
 
-Demo login credentials are available in:
+The project uses **PostgreSQL** with **Prisma ORM**.
 
-**[DEMO_ACCOUNTS.md](./DEMO_ACCOUNTS.md)**
+Prisma Client is generated with:
 
-The demo accounts include:
+```bash
+npx prisma generate
+```
 
-* Admin
-* Normal User
-* Store Owner
+For development, database schema changes can be applied using Prisma migrations:
 
-These accounts are intended only for testing and demonstration.
-
----
-
-## Authentication Flow
-
-```text
-User
-  │
-  ▼
-Login
-  │
-  ▼
-Backend validates credentials
-  │
-  ▼
-JWT generated
-  │
-  ▼
-JWT stored by client
-  │
-  ▼
-Protected API requests
-  │
-  ▼
-Authentication middleware
-  │
-  ▼
-Role-based authorization
-  │
-  ├── ADMIN ──► Admin Dashboard
-  │
-  ├── USER ───► Store Browsing
-  │
-  └── OWNER ──► Owner Dashboard
+```bash
+npx prisma migrate dev
 ```
 
 ---
-
 
 ## Author
 
@@ -290,10 +308,11 @@ Role-based authorization
 B.Tech Mathematics & Computing
 Central University of Karnataka
 
-GitHub: [krishnagp97](https://github.com/krishnagp97)
+GitHub:
+https://github.com/krishnagp97
 
 ---
 
 ## License
 
-This project is developed for learning, demonstration, and internship evaluation purposes.
+This project was developed as part of a full-stack internship coding challenge and is intended primarily for learning and demonstration purposes.
